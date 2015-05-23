@@ -7,7 +7,6 @@ MONGO_PORT = os.environ.get('MONGO_PORT', 27017)
 MONGO_USERNAME = os.environ.get('MONGO_USERNAME', '')
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', '')
 MONGO_DBNAME = os.environ.get('MONGO_DBNAME', 'evedemo')
-GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
 DEBUG = True
 
 
@@ -28,7 +27,12 @@ phones = {
         'work_address_geo': { 'type': 'point' },
         'home_address': { 'type': 'string' },
         'home_address_geo': { 'type': 'point' }
-    }
+    },
+
+    'additional_lookup': {
+        'url': 'regex("[\d]+")',
+        'field': 'phone'
+    },
 }
 
 routes = {

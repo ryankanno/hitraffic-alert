@@ -34,25 +34,31 @@ def slash():
     elif request.method == 'POST':
         form = NumberAddressForm(request.form)
         if form.validate():
+            phone = ''.join(e for e in form.phone.data if e.isalnum())
             headers = {'Content-Type': 'application/json'}
             phone_endpoint = 'http://%s:%s/%s/' % (host, port, "phones")
-            gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
-            directions = gmaps.directions(form.home_address.data, form.work_address.data, mode="driving")
-            g = geocoders.GoogleV3(GOOGLE_API_KEY)
-            home_location_geo = g.geocode(form.home_address.data)
-            work_location_geo = g.geocode(form.work_address.data)
-            data = form.data
-            data["work_address_geo"] = {'type': 'Point', 'coordinates': [work_location_geo.longitude, work_location_geo.latitude]}
-            data["home_address_geo"] = {'type': 'Point', 'coordinates': [home_location_geo.longitude, home_location_geo.latitude]}
-            response = requests.post(phone_endpoint, json.dumps(data), headers=headers)
-            decoded = decode_line(directions[0]["overview_polyline"]["points"])
-            stuffs = []
-            for decode in decoded:
-                stuffs.append({'phone': form.phone.data, 'location': {'type': 'Point', 'coordinates': [decode[1], decode[0]]}})
+            response = requests.get(phone_endpoint + phone, headers=headers)
 
-            route_endpoint = 'http://%s:%s/%s/' % (host, port, "routes")
-            response = requests.post(route_endpoint, json.dumps(stuffs), headers=headers)
-            return render_template('success.html')
+            if response.status_code != 200:
+                gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
+                directions = gmaps.directions(form.home_address.data, form.work_address.data, mode="driving")
+                g = geocoders.GoogleV3(GOOGLE_API_KEY)
+                home_location_geo = g.geocode(form.home_address.data)
+                work_location_geo = g.geocode(form.work_address.data)
+                data = form.data
+                data["work_address_geo"] = {'type': 'Point', 'coordinates': [work_location_geo.longitude, work_location_geo.latitude]}
+                data["home_address_geo"] = {'type': 'Point', 'coordinates': [home_location_geo.longitude, home_location_geo.latitude]}
+                response = requests.post(phone_endpoint, json.dumps(data), headers=headers)
+                decoded = decode_line(directions[0]["overview_polyline"]["points"])
+                stuffs = []
+                for decode in decoded:
+                    stuffs.append({'phone': phone, 'location': {'type': 'Point', 'coordinates': [decode[1], decode[0]]}})
+
+                route_endpoint = 'http://%s:%s/%s/' % (host, port, "routes")
+                response = requests.post(route_endpoint, json.dumps(stuffs), headers=headers)
+                return render_template('success.html')
+            else:
+                return render_template('already_registered.html')
         return render_template('slash.html', form=form)
 
 
