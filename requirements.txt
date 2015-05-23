@@ -1,0 +1,7 @@
+Eve
+requests
+tablib
+wtforms
+flask-wtf
+geopy
+gdata
