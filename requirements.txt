@@ -5,3 +5,4 @@ wtforms
 flask-wtf
 geopy
 gdata
+celery[redis]

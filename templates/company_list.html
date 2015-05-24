@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<center><img src="{{url_for('static', filename='img/hicap_logo.svg')}}" height="120px"/></center>
+{% endblock header_content %}
+
+{% block main_content %}
+
+<div class="page-header">
+    <center><h1>HI Traffic Alert</h1></center>
+</div>
+
+<br/>
+
+{% if companies %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Company</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for company in companies %}
+        <tr>
+            <td><a href="{{ url_for('companies_get', objectid=company._id)}}">{{ company.name }}</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock main_content %}

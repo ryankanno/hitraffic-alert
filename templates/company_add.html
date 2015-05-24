@@ -1,0 +1,23 @@
+{% import '_forms.html' as forms %}
+
+{% extends 'base.html' %}
+
+{% block header_content %}
+<center><img src="{{url_for('static', filename='img/hicap_logo.svg')}}" height="120px"/></center>
+{% endblock header_content %}
+
+{% block main_content %}
+
+<div class="page-header">
+    <center><h1>HI Traffic Alert</h1></center>
+</div>
+
+<br/>
+
+<form method="POST" action="{{ url_for('companies_add') }}">
+    {{ form.crsf_token }}
+    {{ forms.render(form) }}
+    <input type="submit" value="Add">
+</form>
+
+{% endblock main_content %}

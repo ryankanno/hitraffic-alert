@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block header_content %}
+<center><img src="{{url_for('static', filename='img/hicap_logo.svg')}}" height="120px"/></center>
+{% endblock header_content %}
+
+{% block main_content %}
+
+<div class="page-header">
+    <center><h1>HI Traffic Alert</h1></center>
+</div>
+
+<br/>
+
+{% if company %}
+{{company.name}}
+{% endif %}
+
+{% endblock main_content %}

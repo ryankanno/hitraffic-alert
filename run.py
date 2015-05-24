@@ -4,7 +4,9 @@ import os
 import requests
 from eve import Eve
 from flask import render_template
+from flask import redirect
 from flask import request
+from flask import url_for
 from geopy import geocoders
 import googlemaps
 from polyline import decode_line
@@ -46,6 +48,7 @@ def slash():
                 home_location_geo = g.geocode(form.home_address.data)
                 work_location_geo = g.geocode(form.work_address.data)
                 data = form.data
+                data['is_verified'] = False
                 data["work_address_geo"] = {'type': 'Point', 'coordinates': [work_location_geo.longitude, work_location_geo.latitude]}
                 data["home_address_geo"] = {'type': 'Point', 'coordinates': [home_location_geo.longitude, home_location_geo.latitude]}
                 response = requests.post(phone_endpoint, json.dumps(data), headers=headers)
@@ -62,11 +65,45 @@ def slash():
         return render_template('slash.html', form=form)
 
 
+@app.route('/c/<objectid>', methods=['GET'])
+def companies_get(objectid):
+    headers = {'Content-Type': 'application/json'}
+    response = requests.get(endpoint('companies') + objectid, headers=headers)
+    return render_template('company.html', company=response.json())
+
+
+@app.route('/c', methods=['GET', 'POST'])
+def companies_add():
+    if request.method == 'GET':
+        form = CompanyForm()
+        return render_template('company_add.html', form=form)
+    elif request.method == 'POST':
+        form = CompanyForm(request.form)
+        if form.validate():
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(endpoint('companies'), json.dumps(form.data), headers=headers)
+            if response.status_code == 201:
+                return redirect(url_for('companies_list'))
+        return render_template('company_add.html', form=form)
+
+
+@app.route('/cs', methods=['GET'])
+def companies_list():
+    headers = {'Content-Type': 'application/json'}
+    response = requests.get(endpoint("companies"), headers=headers)
+    return render_template('company_list.html', companies=response.json()["_items"])
+
+
+def endpoint(resource):
+    return 'http://%s:%s/%s/' % (host, port, resource)
+
 class NumberAddressForm(Form):
     phone = TextField(u'Phone Number', [validators.required(), validators.length(max=11)])
     home_address = TextField(u'Home Address', [validators.required()])
     work_address = TextField(u'Work Address', [validators.required()])
 
+class CompanyForm(Form):
+    name = TextField(u'Company Name', [validators.required()])
 
 if __name__ == '__main__':
     app.run(host=host, port=port, threaded=True)

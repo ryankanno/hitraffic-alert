@@ -7,11 +7,14 @@ MONGO_PORT = os.environ.get('MONGO_PORT', 27017)
 MONGO_USERNAME = os.environ.get('MONGO_USERNAME', '')
 MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', '')
 MONGO_DBNAME = os.environ.get('MONGO_DBNAME', 'evedemo')
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', '')
 DEBUG = True
 
 
 RESOURCE_METHODS = ['GET', 'POST', 'DELETE']
 ITEM_METHODS = ['GET', 'PATCH', 'DELETE']
+
+IF_CHECK = False
 
 CACHE_CONTROL = 'max-age=20'
 CACHE_EXPIRES = 20
@@ -23,6 +26,7 @@ phones = {
 
     'schema': {
         'phone': { 'type': 'string' },
+        'is_verified': {'type': 'boolean'},
         'work_address': { 'type': 'string' },
         'work_address_geo': { 'type': 'point' },
         'home_address': { 'type': 'string' },
@@ -44,7 +48,27 @@ routes = {
     }
 }
 
+companies = {
+    'item_title': 'companies',
+
+    'schema': {
+        'name': { 'type': 'string' },
+    }
+}
+
+companies_coupons = {
+    'item_title': 'companies coupons',
+
+    'schema': {
+        'company': {'type': 'string'},
+        'coupon_url': { 'type': 'string' },
+        'zip_codes': {'type': 'list'}
+    }
+}
+
 DOMAIN = {
     'phones': phones,
-    'routes': routes
+    'routes': routes,
+    'companies': companies,
+    'companies_coupons': companies_coupons
 }
